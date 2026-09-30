@@ -1,0 +1,347 @@
+<UserControl x:Class="OAI.Views.SourcesAndRulesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FlowDirection="RightToLeft"
+             Language="ar-SA"
+             FontFamily="Segoe UI, Cairo, Tahoma"
+             Background="{StaticResource BrushApp}">
+
+    <Grid Margin="20,16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="12"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="12"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MinWidth="200"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
+                <TextBlock Text="المصادر والملف" Style="{StaticResource CaptionText}"/>
+                <TextBlock Text="السيرة الذاتية، البيانات الشخصية، ومنصات البحث" Style="{StaticResource SubtitleText}"/>
+            </StackPanel>
+            <TextBlock Grid.Column="1"
+                       Text="{Binding StatusMessage}"
+                       Foreground="{StaticResource BrushMuted}"
+                       FontSize="12"
+                       VerticalAlignment="Center"
+                       TextTrimming="CharacterEllipsis"
+                       MaxWidth="280"/>
+        </Grid>
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MinWidth="320"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="1.15*" MinWidth="360"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Style="{StaticResource Card}" Padding="16">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="12"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="14"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="12"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="الملف الشخصي" Style="{StaticResource CaptionText}" FontSize="15"/>
+                            <TextBlock Text="يُملأ تلقائياً بعد إدراج ملف PDF" Style="{StaticResource SubtitleText}"/>
+                        </StackPanel>
+                            <Button Grid.Column="1" x:Name="btnUploadPdf" Click="btnUploadPdf_Click"
+                                Content="رفع PDF أو Word" Style="{StaticResource AppButton}" VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <Border Grid.Row="2" Background="{StaticResource BrushInput}" CornerRadius="6" Padding="10,8">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="ملف السيرة" Style="{StaticResource FieldLabel}" Margin="0,0,0,2"/>
+                                <TextBlock x:Name="txtSavedResumeName"
+                                           Text="لا يوجد ملف محفوظ"
+                                           Foreground="{StaticResource BrushText}"
+                                           FontSize="12"
+                                           TextTrimming="CharacterEllipsis"/>
+                            </StackPanel>
+                            <Button Grid.Column="1" x:Name="btnPreviewCv" Click="btnPreviewCv_Click"
+                                    Content="معاينة" Style="{StaticResource GhostButton}"
+                                    Padding="12,6" MinHeight="30" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+                    <Border x:Name="pnlResumeBadge" Visibility="Collapsed"/>
+
+                    <ScrollViewer Grid.Row="4" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,12">
+                                <TextBlock Text="الاسم الكامل" Style="{StaticResource FieldLabel}"/>
+                                <TextBox x:Name="txtFullName" Style="{StaticResource AppTextBox}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,0,12">
+                                <TextBlock Text="البريد الإلكتروني" Style="{StaticResource FieldLabel}"/>
+                                <TextBox x:Name="txtEmail" Style="{StaticResource AppTextBox}"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,12">
+                                <TextBlock Text="الجوال" Style="{StaticResource FieldLabel}"/>
+                                <TextBox x:Name="txtPhone" Style="{StaticResource AppTextBox}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,0,0,12">
+                                <TextBlock Text="العمر" Style="{StaticResource FieldLabel}"/>
+                                <TextBox x:Name="txtAge" Style="{StaticResource AppTextBox}"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,0,12">
+                                <TextBlock Text="الجنس" Style="{StaticResource FieldLabel}"/>
+                                <TextBox x:Name="txtGender" Style="{StaticResource AppTextBox}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="2" Grid.Column="2" Margin="0,0,0,12">
+                                <TextBlock Text="المسمى المستهدف" Style="{StaticResource FieldLabel}"/>
+                                <TextBox x:Name="txtTargetTitle" Style="{StaticResource AppTextBox}"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="3" Grid.Column="0" Margin="0,0,0,12">
+                                <TextBlock Text="سنوات الخبرة" Style="{StaticResource FieldLabel}"/>
+                                <TextBox x:Name="txtExperience" Style="{StaticResource AppTextBox}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="3" Grid.Column="2" Margin="0,0,0,12">
+                                <TextBlock Text="التعليم" Style="{StaticResource FieldLabel}"/>
+                                <TextBox x:Name="txtEducation" Style="{StaticResource AppTextBox}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="4" Grid.Column="0">
+                                <TextBlock Text="المهارات" Style="{StaticResource FieldLabel}"/>
+                                <TextBox x:Name="txtSkills" Style="{StaticResource AppTextBox}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="4" Grid.Column="2">
+                                <TextBlock Text="الموقع" Style="{StaticResource FieldLabel}"/>
+                                <TextBox x:Name="txtLocation" Style="{StaticResource AppTextBox}"/>
+                            </StackPanel>
+                        </Grid>
+                    </ScrollViewer>
+
+                    <Button Grid.Row="6" x:Name="btnSaveProfile" Click="btnSaveProfile_Click"
+                            Content="حفظ الملف" Style="{StaticResource SuccessButton}" HorizontalAlignment="Stretch"/>
+                </Grid>
+            </Border>
+
+            <Border Grid.Column="2" Style="{StaticResource Card}" Padding="16">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="12"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="12"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="10"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="منصات البحث" Style="{StaticResource CaptionText}" FontSize="15"/>
+                            <TextBlock Text="الأتمتة تستهدف المصادر المفعّلة فقط" Style="{StaticResource SubtitleText}"/>
+                        </StackPanel>
+                        <Border Grid.Column="1" Background="{StaticResource BrushInput}" CornerRadius="6" Padding="10,6" VerticalAlignment="Center">
+                            <TextBlock Foreground="{StaticResource BrushMuted}" FontSize="12">
+                                <Run Text="مفعّل"/>
+                                <Run Text="{Binding EnabledSourcesCount, Mode=OneWay}"/>
+                                <Run Text="/"/>
+                                <Run Text="{Binding TotalSourcesCount, Mode=OneWay}"/>
+                            </TextBlock>
+                        </Border>
+                    </Grid>
+
+                    <Border Grid.Row="2" Background="{StaticResource BrushInput}" CornerRadius="8" Padding="12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1.1*"/>
+                                <ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="1.6*"/>
+                                <ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Text="المنصة" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock Grid.Column="2" Text="الرابط" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock Grid.Column="4" Text="الحساب" Style="{StaticResource FieldLabel}"/>
+
+                            <TextBox Grid.Row="1" x:Name="txtNewPlatformName" Style="{StaticResource AppTextBox}"/>
+                            <TextBox Grid.Row="1" Grid.Column="2" x:Name="txtNewTargetUrl" Style="{StaticResource AppTextBox}"/>
+                            <TextBox Grid.Row="1" Grid.Column="4" x:Name="txtNewAccountUsername" Style="{StaticResource AppTextBox}"/>
+                            <Button Grid.Row="1" Grid.Column="6" Click="btnAddSource_Click"
+                                    Content="إضافة" Style="{StaticResource AppButton}" VerticalAlignment="Stretch"/>
+                        </Grid>
+                    </Border>
+
+                    <DataGrid Grid.Row="4" x:Name="SourcesDataGrid" ItemsSource="{Binding SearchSources}">
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="المنصة" Width="1.3*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Margin="4,0">
+                                            <TextBlock Text="{Binding PlatformName}" FontWeight="SemiBold" FontSize="12"/>
+                                            <TextBlock Text="{Binding AccountUsername}" Foreground="{StaticResource BrushMuted}" FontSize="11"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="الرابط" Width="2*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding TargetUrl}"
+                                                   Foreground="#60A5FA"
+                                                   FontSize="11"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   ToolTip="{Binding TargetUrl}"
+                                                   VerticalAlignment="Center"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="تفعيل" Width="72">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <CheckBox HorizontalAlignment="Center"
+                                                  IsChecked="{Binding IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                  Tag="{Binding Id}"
+                                                  Style="{StaticResource ToggleSwitch}"
+                                                  Checked="SourceToggle_Checked"
+                                                  Unchecked="SourceToggle_Unchecked"
+                                                  Click="SourceToggle_Click"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="" Width="72">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Click="btnDeleteSource_Click" Tag="{Binding Id}"
+                                                Content="حذف" Style="{StaticResource DangerButton}"
+                                                HorizontalAlignment="Center"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <Grid Grid.Row="6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Command="{Binding SaveSourcesCommand}"
+                                Content="حفظ المصادر" Style="{StaticResource GhostButton}" HorizontalAlignment="Left"/>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="4" Style="{StaticResource Card}" Padding="14">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" MinWidth="240"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*" MinWidth="280"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel>
+                    <TextBlock Text="Gemini" Style="{StaticResource CaptionText}" FontSize="14"/>
+                    <Grid Margin="0,10,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.4*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="مفتاح API" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Text="{Binding GeminiApiKey, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="النموذج" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Text="{Binding GeminiModelName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
+                        </StackPanel>
+                        <Button Grid.Column="4" Content="حفظ" Command="{Binding SaveGeminiSettingsCommand}"
+                                Style="{StaticResource AppButton}" VerticalAlignment="Bottom"/>
+                    </Grid>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="مراقبة البريد" Style="{StaticResource CaptionText}" FontSize="14" VerticalAlignment="Center"/>
+                        <CheckBox Margin="12,0,0,0" Style="{StaticResource ToggleSwitch}"
+                                  IsChecked="{Binding IsEmailMonitorEnabled, Mode=TwoWay}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <Grid Margin="0,10,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.3*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="70"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="البريد" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Text="{Binding EmailAddress, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="IMAP" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Text="{Binding ImapServer, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="4">
+                            <TextBlock Text="المنفذ" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Text="{Binding ImapPort, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="6">
+                            <TextBlock Text="كلمة مرور التطبيق" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Text="{Binding AppPassword, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
+                        </StackPanel>
+                        <Button Grid.Column="8" Content="حفظ" Command="{Binding SaveEmailSettingsCommand}"
+                                Style="{StaticResource SuccessButton}" VerticalAlignment="Bottom"/>
+                    </Grid>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
