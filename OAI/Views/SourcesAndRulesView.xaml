@@ -59,7 +59,7 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel>
                             <TextBlock Text="الملف الشخصي" Style="{StaticResource CaptionText}" FontSize="15"/>
-                            <TextBlock Text="يُملأ تلقائياً بعد إدراج ملف PDF" Style="{StaticResource SubtitleText}"/>
+                                <TextBlock Text="يُملأ تلقائياً بعد رفع PDF أو Word" Style="{StaticResource SubtitleText}"/>
                         </StackPanel>
                             <Button Grid.Column="1" x:Name="btnUploadPdf" Click="btnUploadPdf_Click"
                                 Content="رفع PDF أو Word" Style="{StaticResource AppButton}" VerticalAlignment="Center"/>
@@ -298,10 +298,23 @@
                             <TextBlock Text="النموذج" Style="{StaticResource FieldLabel}"/>
                             <TextBox Text="{Binding GeminiModelName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
                         </StackPanel>
-                        <Button Grid.Column="4" Content="حفظ" Command="{Binding SaveGeminiSettingsCommand}"
-                                Style="{StaticResource AppButton}" VerticalAlignment="Bottom"/>
-                    </Grid>
-                </StackPanel>
+                         <Button Grid.Column="4" Content="حفظ" Command="{Binding SaveGeminiSettingsCommand}"
+                                 Style="{StaticResource AppButton}" VerticalAlignment="Bottom"/>
+                     </Grid>
+                     <Grid Margin="0,12,0,0">
+                         <Grid.ColumnDefinitions>
+                             <ColumnDefinition Width="*"/>
+                             <ColumnDefinition Width="8"/>
+                             <ColumnDefinition Width="Auto"/>
+                         </Grid.ColumnDefinitions>
+                         <StackPanel>
+                             <TextBlock Text="فترة المراقبة (دقيقة)" Style="{StaticResource FieldLabel}"/>
+                             <TextBox Text="{Binding MonitoringMinutes, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
+                         </StackPanel>
+                         <Button Grid.Column="2" Content="حفظ الجدول" Command="{Binding SaveScheduleCommand}"
+                                 Style="{StaticResource GhostButton}" VerticalAlignment="Bottom"/>
+                     </Grid>
+                 </StackPanel>
 
                 <StackPanel Grid.Column="2">
                     <StackPanel Orientation="Horizontal">

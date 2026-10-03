@@ -1,0 +1,279 @@
+<UserControl x:Class="OAI.Views.CreateCvWizardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FlowDirection="RightToLeft"
+             Language="ar-SA"
+             FontFamily="Segoe UI, Cairo, Tahoma">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Visibility="{Binding ShowPathChoice, Converter={StaticResource BoolToVis}}">
+            <StackPanel VerticalAlignment="Center" MaxWidth="640" HorizontalAlignment="Stretch">
+                <TextBlock Text="إنشاء السيرة الذاتية" Style="{StaticResource CaptionText}" FontSize="18"/>
+                <TextBlock Text="اختر رفع ملف موجود أو تعبئة النموذج يدوياً. لا يمكن المتابعة قبل اكتمال معايير ATS." Style="{StaticResource SubtitleText}" Margin="0,6,0,16"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Command="{Binding ChooseUploadCommand}" Style="{StaticResource AppButton}" Padding="16,18" HorizontalAlignment="Stretch">
+                        <StackPanel>
+                            <TextBlock Text="رفع سيرة موجودة" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                            <TextBlock Text="PDF أو Word ثم مراجعة الحقول" FontSize="11" Opacity="0.85" HorizontalAlignment="Center" Margin="0,6,0,0"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Grid.Column="2" Command="{Binding ChooseManualCommand}" Style="{StaticResource GhostButton}" Padding="16,18" HorizontalAlignment="Stretch">
+                        <StackPanel>
+                            <TextBlock Text="تعبئة يدوية" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                            <TextBlock Text="نموذج متعدد الأقسام بأسلوب LinkedIn" FontSize="11" Opacity="0.85" HorizontalAlignment="Center" Margin="0,6,0,0"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </StackPanel>
+        </Grid>
+
+        <Grid Visibility="{Binding ShowEditor, Converter={StaticResource BoolToVis}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MinWidth="360"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="240"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel>
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Content="تغيير الطريقة" Command="{Binding BackToPathsCommand}" Style="{StaticResource GhostButton}" Padding="10,6" MinHeight="30"/>
+                    <UniformGrid Grid.Column="1" Columns="4" Margin="10,0,0,0">
+                        <Button Content="التواصل" Command="{Binding GoSectionCommand}" CommandParameter="1" Style="{StaticResource GhostButton}" Margin="0,0,6,0"/>
+                        <Button Content="الخبرة" Command="{Binding GoSectionCommand}" CommandParameter="2" Style="{StaticResource GhostButton}" Margin="0,0,6,0"/>
+                        <Button Content="التعليم" Command="{Binding GoSectionCommand}" CommandParameter="3" Style="{StaticResource GhostButton}" Margin="0,0,6,0"/>
+                        <Button Content="المهارات" Command="{Binding GoSectionCommand}" CommandParameter="4" Style="{StaticResource GhostButton}"/>
+                    </UniformGrid>
+                </Grid>
+
+                <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="420">
+                    <Grid>
+                        <StackPanel Visibility="{Binding IsHeader, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Text="بيانات التواصل" Style="{StaticResource CaptionText}" FontSize="15" Margin="0,0,0,10"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <StackPanel Margin="0,0,0,10">
+                                    <TextBlock Text="الاسم الكامل" Style="{StaticResource FieldLabel}"/>
+                                    <TextBox Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2" Margin="0,0,0,10">
+                                    <TextBlock Text="المسمى المستهدف" Style="{StaticResource FieldLabel}"/>
+                                    <TextBox Text="{Binding TargetJobTitle, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="1" Margin="0,0,0,10">
+                                    <TextBlock Text="البريد" Style="{StaticResource FieldLabel}"/>
+                                    <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,0,0,10">
+                                    <TextBlock Text="الهاتف" Style="{StaticResource FieldLabel}"/>
+                                    <TextBox Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="2" Margin="0,0,0,10">
+                                    <TextBlock Text="الموقع" Style="{StaticResource FieldLabel}"/>
+                                    <TextBox Text="{Binding Location, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="2" Grid.Column="2" Margin="0,0,0,10">
+                                    <TextBlock Text="LinkedIn" Style="{StaticResource FieldLabel}"/>
+                                    <TextBox Text="{Binding LinkedInUrl, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="3">
+                                    <TextBlock Text="GitHub" Style="{StaticResource FieldLabel}"/>
+                                    <TextBox Text="{Binding GitHubUrl, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+
+                        <StackPanel Visibility="{Binding IsExperience, Converter={StaticResource BoolToVis}}">
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="الخبرة العملية" Style="{StaticResource CaptionText}" FontSize="15" VerticalAlignment="Center"/>
+                                <Button Grid.Column="1" Content="إضافة خبرة" Command="{Binding AddExperienceCommand}" Style="{StaticResource AppButton}"/>
+                            </Grid>
+                            <ItemsControl ItemsSource="{Binding Experiences}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="{StaticResource BrushInput}" CornerRadius="8" Padding="12" Margin="0,0,0,10">
+                                            <StackPanel>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel>
+                                                        <TextBlock Text="الشركة" Style="{StaticResource FieldLabel}"/>
+                                                        <TextBox Text="{Binding CompanyName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="2">
+                                                        <TextBlock Text="المسمى" Style="{StaticResource FieldLabel}"/>
+                                                        <TextBox Text="{Binding RoleTitle, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                                <Grid Margin="0,10,0,0">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel>
+                                                        <TextBlock Text="الموقع" Style="{StaticResource FieldLabel}"/>
+                                                        <TextBox Text="{Binding Location, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="2">
+                                                        <TextBlock Text="من / إلى" Style="{StaticResource FieldLabel}"/>
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="*"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBox Text="{Binding StartDateText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
+                                                            <TextBox Grid.Column="2" Text="{Binding EndDateText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
+                                                        </Grid>
+                                                    </StackPanel>
+                                                    <CheckBox Grid.Column="4" Content="حالي" IsChecked="{Binding IsCurrentRole}" VerticalAlignment="Bottom" Margin="0,0,0,8"/>
+                                                </Grid>
+                                                <TextBlock Text="الإنجازات (سطر لكل نقطة)" Style="{StaticResource FieldLabel}" Margin="0,10,0,0"/>
+                                                <TextBox Text="{Binding AchievementsText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}" AcceptsReturn="True" MinHeight="72" TextWrapping="Wrap" VerticalContentAlignment="Top"/>
+                                                <Grid Margin="0,8,0,0">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/><ColumnDefinition Width="8"/><ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Button Content="تعزيز النقاط" Command="{Binding DataContext.EnhanceBulletCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Style="{StaticResource GhostButton}"/>
+                                                    <Button Grid.Column="2" Content="حذف" Command="{Binding DataContext.RemoveExperienceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Style="{StaticResource DangerButton}"/>
+                                                </Grid>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+
+                        <StackPanel Visibility="{Binding IsEducation, Converter={StaticResource BoolToVis}}">
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="التعليم والشهادات" Style="{StaticResource CaptionText}" FontSize="15" VerticalAlignment="Center"/>
+                                <Button Grid.Column="1" Content="إضافة مؤهل" Command="{Binding AddEducationCommand}" Style="{StaticResource AppButton}"/>
+                            </Grid>
+                            <ItemsControl ItemsSource="{Binding EducationItems}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="{StaticResource BrushInput}" CornerRadius="8" Padding="12" Margin="0,0,0,10">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+                                                <StackPanel Margin="0,0,0,8">
+                                                    <TextBlock Text="الجهة" Style="{StaticResource FieldLabel}"/>
+                                                    <TextBox Text="{Binding Institution, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2" Margin="0,0,0,8">
+                                                    <TextBlock Text="الدرجة" Style="{StaticResource FieldLabel}"/>
+                                                    <TextBox Text="{Binding Degree, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Row="1" Margin="0,0,0,8">
+                                                    <TextBlock Text="التخصص" Style="{StaticResource FieldLabel}"/>
+                                                    <TextBox Text="{Binding FieldOfStudy, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,0,0,8">
+                                                    <TextBlock Text="سنة التخرج" Style="{StaticResource FieldLabel}"/>
+                                                    <TextBox Text="{Binding GraduationYear, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
+                                                </StackPanel>
+                                                <Button Grid.Row="2" Content="حذف" Command="{Binding DataContext.RemoveEducationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Style="{StaticResource DangerButton}" HorizontalAlignment="Left"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <Grid Margin="0,8,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="الشهادات المهنية" Style="{StaticResource CaptionText}" FontSize="14" VerticalAlignment="Center"/>
+                                <Button Grid.Column="1" Content="إضافة شهادة" Command="{Binding AddCertificationCommand}" Style="{StaticResource GhostButton}"/>
+                            </Grid>
+                            <ItemsControl ItemsSource="{Binding Certifications}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="{StaticResource BrushInput}" CornerRadius="8" Padding="12" Margin="0,0,0,10">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+                                                <StackPanel Margin="0,0,0,8">
+                                                    <TextBlock Text="اسم الشهادة" Style="{StaticResource FieldLabel}"/>
+                                                    <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2" Margin="0,0,0,8">
+                                                    <TextBlock Text="الجهة المانحة" Style="{StaticResource FieldLabel}"/>
+                                                    <TextBox Text="{Binding IssuingOrganization, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Row="1">
+                                                    <TextBlock Text="السنة" Style="{StaticResource FieldLabel}"/>
+                                                    <TextBox Text="{Binding IssueYear, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
+                                                </StackPanel>
+                                                <Button Grid.Row="1" Grid.Column="2" Content="حذف" Command="{Binding DataContext.RemoveCertificationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Style="{StaticResource DangerButton}" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+
+                        <StackPanel Visibility="{Binding IsSkills, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Text="المهارات" Style="{StaticResource CaptionText}" FontSize="15" Margin="0,0,0,10"/>
+                            <TextBlock Text="مهارات تقنية (مفصولة بفاصلة)" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Text="{Binding TechnicalSkillsText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}" Margin="0,0,0,10"/>
+                            <TextBlock Text="أدوات وأطر عمل" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Text="{Binding ToolsText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}" Margin="0,0,0,10"/>
+                            <TextBlock Text="مهارات ناعمة" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Text="{Binding SoftSkillsText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
+                            <Button Content="تصدير ATS PDF" Command="{Binding ExportPdfCommand}" Style="{StaticResource SuccessButton}" Margin="0,14,0,0" HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </Grid>
+                </ScrollViewer>
+            </StackPanel>
+
+            <Border Grid.Column="2" Style="{StaticResource Card}" Padding="12">
+                <StackPanel>
+                    <TextBlock Text="قائمة جاهزية ATS" Style="{StaticResource CaptionText}" FontSize="13"/>
+                    <TextBlock Text="{Binding AtsBadge}" Style="{StaticResource SubtitleText}" TextWrapping="Wrap" Margin="0,6,0,10"/>
+                    <ItemsControl ItemsSource="{Binding MissingRequirements}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" Foreground="#F87171" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Text="{Binding Status}" Foreground="{StaticResource BrushMuted}" FontSize="11" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

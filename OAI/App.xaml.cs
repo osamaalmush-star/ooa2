@@ -1,7 +1,7 @@
 using System;
 using System.Windows;
-using Microsoft.EntityFrameworkCore;
 using OAI.Data;
+using OAI.Services;
 
 namespace OAI
 {
@@ -12,10 +12,7 @@ namespace OAI
     {
         protected override void OnStartup(StartupEventArgs e)
         {
-            base.OnStartup(e);
-
-            // Global exception handlers to prevent silent crashes
-            this.DispatcherUnhandledException += (s, args) =>
+            DispatcherUnhandledException += (s, args) =>
             {
                 MessageBox.Show($"حدث خطأ غير متوقع في التطبيق:\n\n{args.Exception.Message}\n\n{args.Exception.InnerException?.Message}", 
                                 "خطأ في التشغيل", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -32,6 +29,33 @@ namespace OAI
             };
 
             InitializeDatabaseSafely();
+            StartMonitoring();
+            base.OnStartup(e);
+        }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            try
+            {
+                MonitoringScheduler.Current?.Stop();
+            }
+            catch
+            {
+            }
+            base.OnExit(e);
+        }
+
+        private static void StartMonitoring()
+        {
+            try
+            {
+                var scheduler = new MonitoringScheduler();
+                Current.Properties["Monitor"] = scheduler;
+                scheduler.Start();
+            }
+            catch
+            {
+            }
         }
 
         private static void InitializeDatabaseSafely()

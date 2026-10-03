@@ -1,5 +1,6 @@
 using System.IO;
 using System.Linq;
+using OAI.Core.Services;
 using OAI.Data;
 using OAI.Models;
 
@@ -24,7 +25,10 @@ namespace OAI.Services
             var settings = db.AppSettings.FirstOrDefault();
             var hasSource = db.SearchSources.Any(s => s.IsEnabled && !string.IsNullOrWhiteSpace(s.TargetUrl));
 
-            var hasResume = profile != null
+            var master = TryLoadMaster();
+            var masterValid = master != null && new AtsQualityChecker().ValidateProfile(master).IsValid;
+            var hasResume = masterValid
+                && profile != null
                 && !string.IsNullOrWhiteSpace(profile.ResumeFilePath)
                 && File.Exists(profile.ResumeFilePath)
                 && !string.IsNullOrWhiteSpace(profile.FullName);
@@ -42,7 +46,7 @@ namespace OAI.Services
                 HasEmail = hasEmail,
                 HasSource = hasSource,
                 HasSchedule = hasSchedule,
-                IsComplete = settings?.IsSetupComplete == true && hasResume && hasSource
+                IsComplete = settings?.IsSetupComplete == true && hasResume && hasSource && !string.IsNullOrWhiteSpace(settings.GeminiApiKey)
             };
         }
 
@@ -57,6 +61,18 @@ namespace OAI.Services
                 db.SaveChanges();
             }
             return settings;
+        }
+
+        private static OAI.Core.Models.MasterUserProfile? TryLoadMaster()
+        {
+            try
+            {
+                return new MasterProfileStore().Load();
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }

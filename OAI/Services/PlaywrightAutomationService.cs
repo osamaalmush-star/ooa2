@@ -125,7 +125,7 @@ namespace OAI.Services
                             fieldsFilled++;
                         }
                     }
-                    else if (type == "tel" || combinedMeta.Contains("phone") || combinedMeta.Contains("mobile") || combinedMeta.Contains("tel") || combinedMeta.Contains("hاتف"))
+                    else if (type == "tel" || combinedMeta.Contains("phone") || combinedMeta.Contains("mobile") || combinedMeta.Contains("tel") || combinedMeta.Contains("هاتف"))
                     {
                         if (!string.IsNullOrEmpty(profile.Phone))
                         {
@@ -186,7 +186,7 @@ namespace OAI.Services
                             fieldsFilled++;
                         }
                     }
-                    else if (input.EvaluateAsync<string>("el => el.tagName.toLowerCase()").Result == "textarea" || combinedMeta.Contains("summary") || combinedMeta.Contains("cover") || combinedMeta.Contains("bio") || combinedMeta.Contains("about"))
+                    else if (await input.EvaluateAsync<string>("el => el.tagName.toLowerCase()") == "textarea" || combinedMeta.Contains("summary") || combinedMeta.Contains("cover") || combinedMeta.Contains("bio") || combinedMeta.Contains("about"))
                     {
                         if (!string.IsNullOrEmpty(profile.ExperienceSummary))
                         {

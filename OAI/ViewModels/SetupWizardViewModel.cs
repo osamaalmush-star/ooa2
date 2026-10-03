@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using Microsoft.Win32;
 using OAI.Data;
 using OAI.Models;
@@ -36,6 +37,13 @@ namespace OAI.ViewModels
                     OnPropertyChanged(nameof(PrimaryLabel));
                     OnPropertyChanged(nameof(StepTitle));
                     OnPropertyChanged(nameof(StepHint));
+                    OnPropertyChanged(nameof(Step1Bg));
+                    OnPropertyChanged(nameof(Step2Bg));
+                    OnPropertyChanged(nameof(Step3Bg));
+                    OnPropertyChanged(nameof(Step4Bg));
+                    OnPropertyChanged(nameof(Step5Bg));
+                    OnPropertyChanged(nameof(Step6Bg));
+                    (NextCommand as RelayCommand)?.RaiseCanExecuteChanged();
                 }
             }
         }
@@ -61,7 +69,7 @@ namespace OAI.ViewModels
         public string StepHint => Step switch
         {
             1 => "أدخل مفتاح Gemini الخاص بك. البرنامج لا يستخدم مفتاحاً جاهزاً.",
-            2 => "ارفع ملف PDF أو Word. تُملأ الحقول فقط مما ورد في الملف.",
+             2 => "أنشئ سيرة ATS كاملة. زر التالي يبقى معطّلاً حتى تصبح الجاهزية 100%.",
             3 => "أدخل بريد IMAP وكلمة مرور التطبيق ثم احفظ.",
             4 => "أضف رابط منصة واحدة على الأقل وفعّلها.",
             5 => "حدد فترة فحص المصادر بالدقائق.",
@@ -69,6 +77,26 @@ namespace OAI.ViewModels
         };
 
         public string PrimaryLabel => Step == 6 ? "بدء الاستخدام" : "التالي";
+
+        public Brush Step1Bg => Tone(1);
+        public Brush Step2Bg => Tone(2);
+        public Brush Step3Bg => Tone(3);
+        public Brush Step4Bg => Tone(4);
+        public Brush Step5Bg => Tone(5);
+        public Brush Step6Bg => Tone(6);
+
+        private static readonly Brush ActiveStep = BrushFrom("#2563EB");
+        private static readonly Brush DoneStep = BrushFrom("#166534");
+        private static readonly Brush IdleStep = BrushFrom("#1C2740");
+
+        private Brush Tone(int n) => Step == n ? ActiveStep : (Step > n ? DoneStep : IdleStep);
+
+        private static Brush BrushFrom(string hex)
+        {
+            var brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(hex));
+            brush.Freeze();
+            return brush;
+        }
 
         private string _error = string.Empty;
         public string Error
@@ -81,7 +109,11 @@ namespace OAI.ViewModels
         public bool IsBusy
         {
             get => _isBusy;
-            set => SetProperty(ref _isBusy, value);
+            set
+            {
+                if (SetProperty(ref _isBusy, value))
+                    (NextCommand as RelayCommand)?.RaiseCanExecuteChanged();
+            }
         }
 
         public string GeminiApiKey { get; set; } = string.Empty;
@@ -113,6 +145,8 @@ namespace OAI.ViewModels
 
         public int MonitoringMinutes { get; set; } = 60;
 
+        public CreateCvWizardViewModel CvWizard { get; } = new();
+
         public ICommand NextCommand { get; }
         public ICommand BackCommand { get; }
         public ICommand UploadResumeCommand { get; }
@@ -121,12 +155,20 @@ namespace OAI.ViewModels
 
         public SetupWizardViewModel()
         {
-            NextCommand = new RelayCommand(() => Next(), () => !IsBusy);
+            NextCommand = new RelayCommand(() => Next(), CanGoNext);
             BackCommand = new RelayCommand(() => { if (CanGoBack) Step--; Error = string.Empty; });
             UploadResumeCommand = new RelayCommand(async () => await UploadResumeAsync());
             AddSourceCommand = new RelayCommand(AddSource);
             DeleteSourceCommand = new RelayCommand(p => DeleteSource(p as SearchSource));
+            CvWizard.AtsStateChanged += () => (NextCommand as RelayCommand)?.RaiseCanExecuteChanged();
             LoadExisting();
+        }
+
+        private bool CanGoNext()
+        {
+            if (IsBusy) return false;
+            if (Step == 2) return CvWizard.CanProceed && !CvWizard.IsBusy;
+            return true;
         }
 
         private void LoadExisting()
@@ -170,6 +212,7 @@ namespace OAI.ViewModels
                 Sources.Add(s);
 
             OnPropertyChanged(nameof(ResumeFileName));
+            CvWizard.SetGeminiKey(GeminiApiKey, GeminiModelName);
         }
 
         private void Next()
@@ -205,14 +248,10 @@ namespace OAI.ViewModels
                     }
                     return true;
                 case 2:
-                    if (string.IsNullOrWhiteSpace(ResumePath) || !File.Exists(ResumePath))
+                    CvWizard.RefreshAts();
+                    if (!CvWizard.CanProceed)
                     {
-                        Error = "ارفع ملف السيرة الذاتية أولاً.";
-                        return false;
-                    }
-                    if (string.IsNullOrWhiteSpace(FullName))
-                    {
-                        Error = "الاسم مطلوب بعد قراءة الملف.";
+                        Error = CvWizard.MissingRequirements.FirstOrDefault() ?? "أكمل متطلبات ATS بنسبة 100% قبل المتابعة.";
                         return false;
                     }
                     return true;
@@ -374,26 +413,24 @@ namespace OAI.ViewModels
             db.SaveChanges();
             _gemini.SetApiKey(settings.GeminiApiKey);
             _gemini.SetModelName(settings.GeminiModelName);
+            CvWizard.SetGeminiKey(settings.GeminiApiKey, settings.GeminiModelName);
         }
 
         private void SaveProfile()
         {
-            using var db = new OAIDbContext();
-            var profile = db.UserProfiles.FirstOrDefault() ?? db.UserProfiles.Add(new UserProfile()).Entity;
-            profile.FullName = FullName.Trim();
-            profile.Email = Email.Trim();
-            profile.PhoneNumber = Phone.Trim();
-            profile.Age = Age.Trim();
-            profile.Gender = Gender.Trim();
-            profile.Location = Location.Trim();
-            profile.TargetJobTitle = TargetTitle.Trim();
-            profile.YearsOfExperience = Experience.Trim();
-            profile.Education = Education.Trim();
-            profile.SkillsList = Skills.Trim();
-            profile.Keywords = Keywords.Trim();
-            profile.ResumeFilePath = ResumePath;
-            profile.UpdatedAt = DateTime.UtcNow;
-            db.SaveChanges();
+            if (!CvWizard.TryCommit())
+            {
+                Error = "تعذر حفظ السيرة. أكمل متطلبات ATS أولاً.";
+                return;
+            }
+
+            FullName = CvWizard.FullName;
+            Email = CvWizard.Email;
+            Phone = CvWizard.Phone;
+            Location = CvWizard.Location;
+            TargetTitle = CvWizard.TargetJobTitle;
+            ResumePath = CvWizard.ResumePath;
+            OnPropertyChanged(nameof(ResumeFileName));
         }
 
         private void SaveEmail()

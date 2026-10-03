@@ -102,10 +102,17 @@ namespace OAI.ViewModels
         public bool IsBusy
         {
             get => _isBusy;
-            set => SetProperty(ref _isBusy, value);
+            set
+            {
+                if (SetProperty(ref _isBusy, value))
+                {
+                    (RefreshCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                    (DiscoverJobsCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                    (ResumeApplicationCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                    (GenerateOutreachCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                }
+            }
         }
-
-        private readonly JobMatchingEngine _jobMatchingEngine;
 
         public ICommand RefreshCommand { get; }
         public ICommand DiscoverJobsCommand { get; }
@@ -116,14 +123,43 @@ namespace OAI.ViewModels
         {
             _playwrightService = new PlaywrightAutomationService();
             _geminiService = new GeminiApiService();
-            _jobMatchingEngine = new JobMatchingEngine(_geminiService);
 
-            RefreshCommand = new RelayCommand(LoadDataFromDatabase);
-            DiscoverJobsCommand = new RelayCommand(async () => await DiscoverJobsAsync());
-            ResumeApplicationCommand = new RelayCommand(async (param) => await ResumeApplicationAsync(param as JobApplication));
-            GenerateOutreachCommand = new RelayCommand(async () => await GenerateOutreachAsync());
+            RefreshCommand = new RelayCommand(LoadDataFromDatabase, () => !IsBusy);
+            DiscoverJobsCommand = new RelayCommand(async () => await DiscoverJobsAsync(), () => !IsBusy);
+            ResumeApplicationCommand = new RelayCommand(async (param) => await ResumeApplicationAsync(param as JobApplication), _ => !IsBusy);
+            GenerateOutreachCommand = new RelayCommand(async () => await GenerateOutreachAsync(), () => !IsBusy);
 
+            AttachMonitor();
             LoadDataFromDatabase();
+        }
+
+        public void AttachMonitor()
+        {
+            try
+            {
+                var scheduler = MonitoringScheduler.Current;
+                if (scheduler == null) return;
+                scheduler.TickCompleted -= OnMonitorTick;
+                scheduler.TickCompleted += OnMonitorTick;
+            }
+            catch
+            {
+            }
+        }
+
+        private void OnMonitorTick()
+        {
+            var dispatcher = Application.Current?.Dispatcher;
+            if (dispatcher == null)
+            {
+                LoadDataFromDatabase();
+                return;
+            }
+
+            if (dispatcher.CheckAccess())
+                LoadDataFromDatabase();
+            else
+                dispatcher.Invoke(LoadDataFromDatabase);
         }
 
         public void LoadDataFromDatabase()
@@ -181,73 +217,30 @@ namespace OAI.ViewModels
             IsBusy = true;
             try
             {
-                using var db = new OAIDbContext();
-                var enabledSources = db.SearchSources.Where(s => s.IsEnabled).ToList();
-                if (!enabledSources.Any())
+                using (var db = new OAIDbContext())
                 {
-                    MessageBox.Show("لا توجد مصادر بحث مفعلة حالياً. يرجى تفعيل مصادر من شاشة 'المصادر والقواعد'.", "تنبيه OAI", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                var profile = db.UserProfiles.FirstOrDefault();
-                if (profile == null || string.IsNullOrWhiteSpace(profile.ResumeFilePath) || !File.Exists(profile.ResumeFilePath))
-                {
-                    MessageBox.Show("ارفع السيرة الذاتية أولاً من شاشة المصادر والملف.", "السيرة مطلوبة", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                int newJobsAdded = 0;
-                var scanner = new JobSourceScanner();
-
-                foreach (var source in enabledSources)
-                {
-                    var listings = await scanner.ScanAsync(source);
-                    foreach (var listing in listings)
+                    if (!db.SearchSources.Any(s => s.IsEnabled && !string.IsNullOrWhiteSpace(s.TargetUrl)))
                     {
-                        if (!listing.IsOpen || listing.RequiresNationality)
-                            continue;
+                        MessageBox.Show("لا توجد مصادر بحث مفعلة حالياً. يرجى تفعيل مصادر من شاشة 'المصادر والقواعد'.", "تنبيه OAI", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
 
-                        bool exists = db.JobApplications.Any(j => j.JobUrl == listing.Url);
-                        if (exists) continue;
-
-                        var matchResult = await _jobMatchingEngine.EvaluateJobMatchAsync(profile, listing.Title, listing.Company, listing.Description);
-                        var advice = matchResult.Rationale;
-                        if (string.IsNullOrWhiteSpace(advice))
-                            advice = "راجع الوصف قبل التقديم. الزر يفتح صفحة التقديم الحقيقية ويتوقف قبل الإرسال.";
-
-                        var newApp = new JobApplication
-                        {
-                            JobTitle = listing.Title,
-                            CompanyName = listing.Company,
-                            Location = listing.Location,
-                            Platform = listing.Platform,
-                            MatchScore = matchResult.MatchScore,
-                            Status = listing.IsOpen ? "شاغرة" : "منتهية",
-                            JobUrl = listing.Url,
-                            ApplyUrl = string.IsNullOrWhiteSpace(listing.ApplyUrl) ? listing.Url : listing.ApplyUrl,
-                            JobDescription = listing.Description,
-                            Salary = listing.Salary,
-                            IsOpen = listing.IsOpen,
-                            HrEmail = listing.HrEmail,
-                            Advice = advice,
-                            MatchAnalysisJson = matchResult.RawJson,
-                            CreatedAt = DateTime.UtcNow
-                        };
-
-                        db.JobApplications.Add(newApp);
-                        await db.SaveChangesAsync();
-                        newJobsAdded++;
-
-                        if (newApp.MatchScore >= 80.0)
-                            NotificationService.ShowJobAlertNotification(newApp.JobTitle, newApp.CompanyName, newApp.MatchScore, newApp.ApplyUrl);
+                    var profile = db.UserProfiles.FirstOrDefault();
+                    if (profile == null || string.IsNullOrWhiteSpace(profile.ResumeFilePath) || !File.Exists(profile.ResumeFilePath))
+                    {
+                        MessageBox.Show("ارفع السيرة الذاتية أولاً من شاشة المصادر والملف.", "السيرة مطلوبة", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
                     }
                 }
 
+                var discovery = new JobDiscoveryService();
+                var result = await discovery.DiscoverAsync(true).ConfigureAwait(true);
+
                 LoadDataFromDatabase();
 
-                if (newJobsAdded > 0)
+                if (result.NewJobs > 0)
                 {
-                    MessageBox.Show($"أُضيفت {newJobsAdded} وظيفة شاغرة من المصادر المفعّلة، مرتبة حسب التقييم.", "نتائج البحث", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show($"أُضيفت {result.NewJobs} وظيفة شاغرة من المصادر المفعّلة، مرتبة حسب التقييم.", "نتائج البحث", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
@@ -286,18 +279,45 @@ namespace OAI.ViewModels
             IsBusy = true;
             try
             {
-                using var db = new OAIDbContext();
-                var profile = db.UserProfiles.FirstOrDefault() ?? new UserProfile { FullName = "Candidate", Email = "candidate@example.com" };
+                UserProfile snapshot;
+                string resumePath;
+                using (var db = new OAIDbContext())
+                {
+                    var profile = db.UserProfiles.FirstOrDefault();
+                    if (profile == null || string.IsNullOrWhiteSpace(profile.ResumeFilePath) || !File.Exists(profile.ResumeFilePath))
+                    {
+                        MessageBox.Show("لا يوجد ملف سيرة محفوظ للتقديم.", "السيرة مطلوبة", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
 
-                // Navigate and Auto-Fill form using Playwright Non-headless browser context with saved PDF CV
+                    resumePath = profile.ResumeFilePath;
+                    snapshot = new UserProfile
+                    {
+                        FullName = profile.FullName,
+                        Email = profile.Email,
+                        PhoneNumber = profile.PhoneNumber,
+                        Location = profile.Location,
+                        LinkedInUrl = profile.LinkedInUrl,
+                        GitHubUrl = profile.GitHubUrl,
+                        PortfolioUrl = profile.PortfolioUrl,
+                        ExperienceSummary = profile.ExperienceSummary
+                    };
+                }
+
                 var applyUrl = string.IsNullOrWhiteSpace(target.ApplyUrl) ? target.JobUrl : target.ApplyUrl;
                 await _playwrightService.NavigateToUrlAsync(applyUrl);
-                var result = await _playwrightService.AutoFillJobApplicationFormAsync(profile, profile.ResumeFilePath);
+                var result = await _playwrightService.AutoFillJobApplicationFormAsync(snapshot, resumePath);
 
-                // Update application status to PendingSubmit
-                target.Status = "PendingSubmit";
-                db.JobApplications.Update(target);
-                await db.SaveChangesAsync();
+                using (var db = new OAIDbContext())
+                {
+                    var stored = db.JobApplications.FirstOrDefault(j => j.Id == target.Id);
+                    if (stored != null)
+                    {
+                        stored.Status = "PendingSubmit";
+                        stored.AppliedAt = DateTime.UtcNow;
+                        await db.SaveChangesAsync();
+                    }
+                }
 
                 MessageBox.Show($"{result.Message}", "OAI Playwright Auto-Fill", MessageBoxButton.OK, MessageBoxImage.Information);
                 LoadDataFromDatabase();

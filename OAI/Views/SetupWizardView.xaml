@@ -1,6 +1,7 @@
 <UserControl x:Class="OAI.Views.SetupWizardView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="clr-namespace:OAI.Views"
              FlowDirection="RightToLeft"
              Language="ar-SA"
              FontFamily="Segoe UI, Cairo, Tahoma"
@@ -19,23 +20,23 @@
             <TextBlock Text="إعداد أول تشغيل" Style="{StaticResource CaptionText}"/>
             <TextBlock Text="{Binding StepHint}" Style="{StaticResource SubtitleText}"/>
             <UniformGrid Columns="6" Margin="0,14,0,0">
-                <Border CornerRadius="4" Padding="6" Margin="0,0,6,0" Background="#173056">
+                <Border CornerRadius="4" Padding="6" Margin="0,0,6,0" Background="{Binding Step1Bg}">
                     <TextBlock Text="1 ترحيب" Foreground="White" FontSize="11" HorizontalAlignment="Center"/>
                 </Border>
-                <Border CornerRadius="4" Padding="6" Margin="0,0,6,0" Background="#1C2740">
-                    <TextBlock Text="2 السيرة" Foreground="{StaticResource BrushText}" FontSize="11" HorizontalAlignment="Center"/>
+                <Border CornerRadius="4" Padding="6" Margin="0,0,6,0" Background="{Binding Step2Bg}">
+                    <TextBlock Text="2 السيرة" Foreground="White" FontSize="11" HorizontalAlignment="Center"/>
                 </Border>
-                <Border CornerRadius="4" Padding="6" Margin="0,0,6,0" Background="#1C2740">
-                    <TextBlock Text="3 البريد" Foreground="{StaticResource BrushText}" FontSize="11" HorizontalAlignment="Center"/>
+                <Border CornerRadius="4" Padding="6" Margin="0,0,6,0" Background="{Binding Step3Bg}">
+                    <TextBlock Text="3 البريد" Foreground="White" FontSize="11" HorizontalAlignment="Center"/>
                 </Border>
-                <Border CornerRadius="4" Padding="6" Margin="0,0,6,0" Background="#1C2740">
-                    <TextBlock Text="4 المصادر" Foreground="{StaticResource BrushText}" FontSize="11" HorizontalAlignment="Center"/>
+                <Border CornerRadius="4" Padding="6" Margin="0,0,6,0" Background="{Binding Step4Bg}">
+                    <TextBlock Text="4 المصادر" Foreground="White" FontSize="11" HorizontalAlignment="Center"/>
                 </Border>
-                <Border CornerRadius="4" Padding="6" Margin="0,0,6,0" Background="#1C2740">
-                    <TextBlock Text="5 الجدول" Foreground="{StaticResource BrushText}" FontSize="11" HorizontalAlignment="Center"/>
+                <Border CornerRadius="4" Padding="6" Margin="0,0,6,0" Background="{Binding Step5Bg}">
+                    <TextBlock Text="5 الجدول" Foreground="White" FontSize="11" HorizontalAlignment="Center"/>
                 </Border>
-                <Border CornerRadius="4" Padding="6" Background="#1C2740">
-                    <TextBlock Text="6 جاهز" Foreground="{StaticResource BrushText}" FontSize="11" HorizontalAlignment="Center"/>
+                <Border CornerRadius="4" Padding="6" Background="{Binding Step6Bg}">
+                    <TextBlock Text="6 جاهز" Foreground="White" FontSize="11" HorizontalAlignment="Center"/>
                 </Border>
             </UniformGrid>
         </StackPanel>
@@ -52,71 +53,8 @@
                         <TextBox Text="{Binding GeminiModelName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
                     </StackPanel>
 
-                    <StackPanel Visibility="{Binding IsResume, Converter={StaticResource BoolToVis}}">
-                        <Grid Margin="0,0,0,12">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel>
-                                <TextBlock Text="رفع السيرة" Style="{StaticResource CaptionText}" FontSize="16"/>
-                                <TextBlock Text="{Binding ResumeFileName}" Style="{StaticResource SubtitleText}"/>
-                            </StackPanel>
-                            <Button Grid.Column="1" Content="رفع PDF أو Word" Command="{Binding UploadResumeCommand}" Style="{StaticResource AppButton}"/>
-                        </Grid>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="10"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <StackPanel Margin="0,0,0,10">
-                                <TextBlock Text="الاسم" Style="{StaticResource FieldLabel}"/>
-                                <TextBox Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="2" Margin="0,0,0,10">
-                                <TextBlock Text="البريد" Style="{StaticResource FieldLabel}"/>
-                                <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
-                            </StackPanel>
-                            <StackPanel Grid.Row="1" Margin="0,0,0,10">
-                                <TextBlock Text="الجوال" Style="{StaticResource FieldLabel}"/>
-                                <TextBox Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
-                            </StackPanel>
-                            <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,0,0,10">
-                                <TextBlock Text="العمر" Style="{StaticResource FieldLabel}"/>
-                                <TextBox Text="{Binding Age, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
-                            </StackPanel>
-                            <StackPanel Grid.Row="2" Margin="0,0,0,10">
-                                <TextBlock Text="الموقع" Style="{StaticResource FieldLabel}"/>
-                                <TextBox Text="{Binding Location, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
-                            </StackPanel>
-                            <StackPanel Grid.Row="2" Grid.Column="2" Margin="0,0,0,10">
-                                <TextBlock Text="المسمى" Style="{StaticResource FieldLabel}"/>
-                                <TextBox Text="{Binding TargetTitle, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
-                            </StackPanel>
-                            <StackPanel Grid.Row="3" Margin="0,0,0,10">
-                                <TextBlock Text="الخبرة" Style="{StaticResource FieldLabel}"/>
-                                <TextBox Text="{Binding Experience, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
-                            </StackPanel>
-                            <StackPanel Grid.Row="3" Grid.Column="2" Margin="0,0,0,10">
-                                <TextBlock Text="التعليم" Style="{StaticResource FieldLabel}"/>
-                                <TextBox Text="{Binding Education, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
-                            </StackPanel>
-                            <StackPanel Grid.Row="4">
-                                <TextBlock Text="المهارات" Style="{StaticResource FieldLabel}"/>
-                                <TextBox Text="{Binding Skills, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
-                            </StackPanel>
-                            <StackPanel Grid.Row="4" Grid.Column="2">
-                                <TextBlock Text="كلمات مفتاحية" Style="{StaticResource FieldLabel}"/>
-                                <TextBox Text="{Binding Keywords, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
-                            </StackPanel>
-                        </Grid>
-                    </StackPanel>
+                    <views:CreateCvWizardView Visibility="{Binding IsResume, Converter={StaticResource BoolToVis}}"
+                                              DataContext="{Binding CvWizard}"/>
 
                     <StackPanel Visibility="{Binding IsEmail, Converter={StaticResource BoolToVis}}">
                         <TextBlock Text="حساب البريد" Style="{StaticResource CaptionText}" FontSize="16" Margin="0,0,0,10"/>
@@ -151,9 +89,15 @@
                                 <ColumnDefinition Width="1.4*"/><ColumnDefinition Width="8"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBox Text="{Binding NewPlatformName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
-                            <TextBox Grid.Column="2" Text="{Binding NewTargetUrl, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
-                            <Button Grid.Column="4" Content="إضافة" Command="{Binding AddSourceCommand}" Style="{StaticResource AppButton}"/>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="اسم المنصة" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock Grid.Column="2" Text="رابط صفحة الوظائف" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Grid.Row="1" Text="{Binding NewPlatformName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
+                            <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding NewTargetUrl, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBox}"/>
+                            <Button Grid.Row="1" Grid.Column="4" Content="إضافة" Command="{Binding AddSourceCommand}" Style="{StaticResource AppButton}" VerticalAlignment="Stretch"/>
                         </Grid>
                         <ItemsControl ItemsSource="{Binding Sources}">
                             <ItemsControl.ItemTemplate>

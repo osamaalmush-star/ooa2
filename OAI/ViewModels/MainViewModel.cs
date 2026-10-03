@@ -64,6 +64,8 @@ namespace OAI.ViewModels
             else
             {
                 _currentView = DashboardVM;
+                DashboardVM.AttachMonitor();
+                try { MonitoringScheduler.Current?.Start(); } catch { }
             }
         }
 
@@ -72,6 +74,8 @@ namespace OAI.ViewModels
             DashboardVM.LoadDataFromDatabase();
             SourcesAndRulesVM.Reload();
             CurrentView = DashboardVM;
+            DashboardVM.AttachMonitor();
+            try { MonitoringScheduler.Current?.Start(); } catch { }
         }
     }
 }

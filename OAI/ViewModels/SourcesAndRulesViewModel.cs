@@ -107,6 +107,13 @@ namespace OAI.ViewModels
             set => SetProperty(ref _geminiModelName, value);
         }
 
+        private int _monitoringMinutes = 60;
+        public int MonitoringMinutes
+        {
+            get => _monitoringMinutes;
+            set => SetProperty(ref _monitoringMinutes, value);
+        }
+
         private string _statusMessage = "جاهز";
         public string StatusMessage
         {
@@ -127,6 +134,7 @@ namespace OAI.ViewModels
         public ICommand SaveSourcesCommand { get; }
         public ICommand SaveEmailSettingsCommand { get; }
         public ICommand SaveGeminiSettingsCommand { get; }
+        public ICommand SaveScheduleCommand { get; }
 
         public SourcesAndRulesViewModel()
         {
@@ -139,6 +147,7 @@ namespace OAI.ViewModels
             SaveSourcesCommand = new RelayCommand(async () => await SaveSourcesAsync());
             SaveEmailSettingsCommand = new RelayCommand(SaveEmailSettings);
             SaveGeminiSettingsCommand = new RelayCommand(SaveGeminiSettings);
+            SaveScheduleCommand = new RelayCommand(SaveSchedule);
 
             LoadDataFromDatabase();
         }
@@ -177,6 +186,7 @@ namespace OAI.ViewModels
                 {
                     GeminiApiKey = app.GeminiApiKey;
                     GeminiModelName = string.IsNullOrWhiteSpace(app.GeminiModelName) ? "gemini-2.0-flash" : app.GeminiModelName;
+                    MonitoringMinutes = app.MonitoringIntervalMinutes <= 0 ? 60 : app.MonitoringIntervalMinutes;
                     if (!string.IsNullOrWhiteSpace(GeminiApiKey))
                         _geminiService.SetApiKey(GeminiApiKey);
                     _geminiService.SetModelName(GeminiModelName);
@@ -472,6 +482,37 @@ namespace OAI.ViewModels
             {
                 StatusMessage = $"خطأ Gemini: {ex.Message}";
                 MessageBox.Show($"خطأ عند حفظ إعدادات Gemini:\n{ex.Message}", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void SaveSchedule()
+        {
+            try
+            {
+                if (MonitoringMinutes < 15)
+                {
+                    MessageBox.Show("أقل فترة مراقبة 15 دقيقة.", "الجدول", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                using var db = new OAIDbContext();
+                var settings = db.AppSettings.FirstOrDefault();
+                if (settings == null)
+                {
+                    settings = new AppSetting();
+                    db.AppSettings.Add(settings);
+                }
+
+                settings.MonitoringIntervalMinutes = MonitoringMinutes;
+                db.SaveChanges();
+                MonitoringScheduler.Current?.Start();
+                StatusMessage = "تم حفظ جدول المراقبة.";
+                MessageBox.Show($"ستُفحص المصادر والبريد كل {MonitoringMinutes} دقيقة.", "الجدول", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"خطأ الجدول: {ex.Message}";
+                MessageBox.Show($"خطأ عند حفظ الجدول:\n{ex.Message}", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
